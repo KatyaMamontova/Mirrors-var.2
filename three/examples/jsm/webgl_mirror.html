@@ -34,7 +34,7 @@
 					"three/addons/": "./jsm/"
 				}
 			}
-		</script>
+	</script>
 
 	<script type="module">
 
@@ -69,6 +69,7 @@
 
 			// scene
 			scene = new THREE.Scene();
+			scene.rotateY(Math.PI / 2);
 
 			// camera
 			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
@@ -79,7 +80,6 @@
 			cameraControls.maxDistance = 400;
 			cameraControls.minDistance = 10;
 			cameraControls.update();
-
 			//
 
 			const planeGeo = new THREE.PlaneGeometry(100.1, 100.1);
@@ -106,10 +106,10 @@
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
 				color: 0xc1cbcb,
-				//recursion: 1
+				recursion: 1
 			});
-			//mirror.material.transparent = true;
-			//mirror.material.alpha = 0.1;
+			rightMirror.material.transparent = true;
+			rightMirror.material.alpha = 0.1;
 			rightMirror.position.x = 50;
 			rightMirror.position.y = 50;
 			rightMirror.rotateY(- Math.PI / 2);
@@ -218,7 +218,7 @@
 
 			const timer = Date.now() * 0.01;
 
-			sphereGroup.rotation.y -= 0.002;
+			/* sphereGroup.rotation.y -= 0.002;
 
 			smallSphere.position.set(
 				Math.cos(timer * 0.1) * 30,
@@ -226,7 +226,7 @@
 				Math.sin(timer * 0.1) * 30
 			);
 			smallSphere.rotation.y = (Math.PI / 2) - timer * 0.1;
-			smallSphere.rotation.z = timer * 0.8;
+			smallSphere.rotation.z = timer * 0.8; */
 
 			renderer.render(scene, camera);
 

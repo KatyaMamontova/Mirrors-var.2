@@ -11,7 +11,9 @@ import {
 	WebGLRenderTarget,
 	HalfFloatType,
 	NoToneMapping,
-	LinearSRGBColorSpace
+	LinearSRGBColorSpace,
+	DepthTexture,
+	UnsignedShortType
 } from 'three';
 
 class Reflector extends Mesh {
@@ -52,9 +54,20 @@ class Reflector extends Mesh {
 		const textureMatrix = new Matrix4();
 		const virtualCamera = this.camera;
 
+		/* var parameters = {
+			minFilter: LinearFilter,
+			magFilter: LinearFilter,
+			format: RGBFormat,
+			stencilBuffer: false
+		}; */
+
 		const renderTarget = new WebGLRenderTarget(textureWidth, textureHeight, { samples: multisample, type: HalfFloatType });
 
-		/* if (!THREE.Math.isPowerOfTwo(textureWidth) || !THREE.Math.isPowerOfTwo(textureHeight)) {
+		renderTarget.depthBuffer = true;
+		renderTarget.depthTexture = new DepthTexture();
+		renderTarget.depthTexture.type = UnsignedShortType;
+
+		/* if (!Math.isPowerOfTwo(textureWidth) || !Math.isPowerOfTwo(textureHeight)) {
 			renderTarget.texture.generateMipmaps = false;
 		} */
 
@@ -112,6 +125,9 @@ class Reflector extends Mesh {
 			virtualCamera.updateMatrixWorld();
 			virtualCamera.projectionMatrix.copy(camera.projectionMatrix);
 
+			this.material.uniforms.cameraNear.value = camera.near;
+			this.material.uniforms.cameraFar.value = camera.far;
+
 			// Update the texture matrix
 			textureMatrix.set(
 				0.5, 0.0, 0.0, 0.5,
@@ -147,6 +163,8 @@ class Reflector extends Mesh {
 			projectionMatrix.elements[14] = clipPlane.w;
 
 			// Render
+
+			//renderTarget.texture.encoding = renderer.outputEncoding;
 			scope.visible = false;
 
 			const currentRenderTarget = renderer.getRenderTarget();
@@ -177,7 +195,25 @@ class Reflector extends Mesh {
 
 			// Restore viewport
 
-			const viewport = camera.viewport;
+			var bounds = camera.bounds;
+
+			if (bounds !== undefined) {
+
+				var size = renderer.getSize();
+				var pixelRatio = renderer.getPixelRatio();
+
+				viewport.x = bounds.x * size.width * pixelRatio;
+				viewport.y = bounds.y * size.height * pixelRatio;
+				viewport.z = bounds.z * size.width * pixelRatio;
+				viewport.w = bounds.w * size.height * pixelRatio;
+
+				renderer.state.viewport(viewport);
+
+			}
+
+			scope.visible = true;
+
+			/* const viewport = camera.viewport;
 
 			if (viewport !== undefined) {
 
@@ -185,7 +221,7 @@ class Reflector extends Mesh {
 
 			}
 
-			scope.visible = true;
+			scope.visible = true; */
 
 		};
 
@@ -217,14 +253,24 @@ Reflector.ReflectorShader = {
 		'tDiffuse': {
 			value: null
 		},
-        
-        'tDepth': {
-            value: null
-        },
+
+		'tDepth': {
+			value: null
+		},
 
 		'textureMatrix': {
 			value: null
-		}
+		},
+
+		'cameraNear': {
+			type: 'f',
+			value: 0
+		},
+
+		'cameraFar': {
+			type: 'f',
+			value: 0
+		},
 
 	},
 
@@ -239,21 +285,27 @@ Reflector.ReflectorShader = {
 
 			vUv = textureMatrix * vec4( position, 1.0 ); /*масштабирование отражения*/
 
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); /*расстояние между отражеиями*/
 
 			#include <logdepthbuf_vertex>
 
 		}`,
 
 	fragmentShader: /* glsl */`
+        #include <packing>
 		uniform vec3 color;
 		uniform sampler2D tDiffuse;
+		uniform sampler2D depthSampler;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
 		varying vec4 vUv;
 
 		#include <logdepthbuf_pars_fragment>
 
 		float blendOverlay( float base, float blend ) {
-
+			
+			/*размытие светлых пятен в отражениях*/
 			return( base < 0.5 ? ( 2.0 * base * blend ) : ( 1.0 - 2.0 * ( 1.0 - base ) * ( 1.0 - blend ) ) );
 
 		}
@@ -263,13 +315,24 @@ Reflector.ReflectorShader = {
 			return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
 
 		}
+        
+        float readDepth( sampler2D depthSampler, vec4 coord ) {
+                
+           float fragCoordZ = texture2DProj( depthSampler, coord ).x;
+           float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+           return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+            
+        }
 
 		void main() {
 
 			#include <logdepthbuf_fragment>
+			
 
 			vec4 base = texture2DProj( tDiffuse, vUv );
-			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 /*- 0.5*/ ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
+			float depth = readDepth( tDepth, vUv );
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 250.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
+
 
 			#include <tonemapping_fragment>
 			#include <encodings_fragment>
