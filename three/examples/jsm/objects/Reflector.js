@@ -277,6 +277,10 @@ Reflector.ReflectorShader = {
 	vertexShader: /* glsl */`
 		uniform mat4 textureMatrix;
 		varying vec4 vUv;
+		//эээксперименты
+		uniform mat4 textureMatrix1;
+		varying vec4 vUv1;
+		//
 
 		#include <common>
 		#include <logdepthbuf_pars_vertex>
@@ -284,10 +288,14 @@ Reflector.ReflectorShader = {
 		void main() {
 
 			vUv = textureMatrix * vec4( position, 1.0 ); /*масштабирование отражения*/
-
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); /*расстояние между отражеиями*/
-
-			#include <logdepthbuf_vertex>
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); /*расстояние между отражеиями*/ 
+			
+			//эээксперименты
+			// vUv1 = textureMatrix * vec4( position, 2.0 );
+			// gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			//
+			//что это?.. ничего не меняется, если закомментировать
+			//#include <logdepthbuf_vertex>
 
 		}`,
 

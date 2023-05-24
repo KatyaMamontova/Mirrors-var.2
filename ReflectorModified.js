@@ -281,7 +281,7 @@ THREE.Reflector.ReflectorShader = {
         'void main() {',
 
         '   vec4 base = texture2DProj( tDiffuse, vUv );',
-        ' float depth = readDepth( tDepth, vUv );',
+        '   float depth = readDepth( tDepth, vUv );',
         '   gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 50000.0 ) );',
 
         '}'
