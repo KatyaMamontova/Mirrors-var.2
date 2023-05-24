@@ -51,7 +51,7 @@
 
 		let sphereGroup, smallSphere;
 
-		let groundMirror, rightMirror, leftMirror;
+		let groundMirror, frontMirror, backMirror;
 
 		init();
 		animate();
@@ -101,30 +101,30 @@
 
 			geometry = new THREE.PlaneGeometry(100, 100);
 
-			rightMirror = new Reflector(geometry, {
+			frontMirror = new Reflector(geometry, {
 				clipBias: 0.003,//про глубину отражения?
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
 				color: 0xc1cbcb,
 				recursion: 1
 			});
-			rightMirror.material.transparent = true;
-			rightMirror.material.alpha = 0.1;
-			rightMirror.position.x = 50;
-			rightMirror.position.y = 50;
-			rightMirror.rotateY(- Math.PI / 2);
-			scene.add(rightMirror);
+			frontMirror.material.transparent = true;
+			frontMirror.material.alpha = 0.1;
+			frontMirror.position.x = 50;
+			frontMirror.position.y = 50;
+			frontMirror.rotateY(- Math.PI / 2);
+			scene.add(frontMirror);
 
-			leftMirror = new Reflector(geometry, {
+			backMirror = new Reflector(geometry, {
 				clipBias: 0.003,
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
 				color: 0xc1cbcb
 			});
-			leftMirror.position.x = -50;
-			leftMirror.position.y = 50;
-			leftMirror.rotateY(Math.PI / 2);
-			scene.add(leftMirror);
+			backMirror.position.x = -50;
+			backMirror.position.y = 50;
+			backMirror.rotateY(Math.PI / 2);
+			scene.add(backMirror);
 
 			sphereGroup = new THREE.Object3D();
 			scene.add(sphereGroup);
@@ -159,16 +159,16 @@
 			planeBottom.rotateX(- Math.PI / 2);
 			scene.add(planeBottom);
 
-			const planeFront = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0xbbbbfe }));
-			planeFront.position.z = 50;
-			planeFront.position.y = 50;
-			planeFront.rotateY(Math.PI);
-			scene.add(planeFront);
+			const planeRight = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0x551133 }));
+			planeRight.position.z = 50;
+			planeRight.position.y = 50;
+			planeRight.rotateY(Math.PI);
+			scene.add(planeRight);
 
-			const planeBack = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0x00ff00 }));
-			planeBack.position.z = -50;
-			planeBack.position.y = 50;
-			scene.add(planeBack);
+			const planeLeft = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0x777711 }));
+			planeLeft.position.z = -50;
+			planeLeft.position.y = 50;
+			scene.add(planeLeft);
 
 			// lights
 			const mainLight = new THREE.PointLight(0xe7e7e7, 1.5, 250);
@@ -202,11 +202,11 @@
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
 			);
-			rightMirror.getRenderTarget().setSize(
+			frontMirror.getRenderTarget().setSize(
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
 			);
-			leftMirror.getRenderTarget().setSize(
+			backMirror.getRenderTarget().setSize(
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
 			);
