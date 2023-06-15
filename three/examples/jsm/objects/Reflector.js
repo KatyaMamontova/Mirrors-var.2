@@ -323,7 +323,8 @@ Reflector.ReflectorShader = {
 
 		vec3 blendOverlay( vec3 base, vec3 blend ) {
 
-			return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
+			//return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
+			return vec3( blendOverlay( base.r * 0.7, blend.r * 0.6), blendOverlay( base.g * 0.7, blend.g * 0.6), blendOverlay( base.b * 0.7, blend.b * 0.6) );
 
 		}
         
@@ -342,7 +343,7 @@ Reflector.ReflectorShader = {
 
 			vec4 base = texture2DProj( tDiffuse, vUv );
 			float depth = readDepth( tDepth, vUv );
-			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 450.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 250.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
 
 
 			#include <tonemapping_fragment>

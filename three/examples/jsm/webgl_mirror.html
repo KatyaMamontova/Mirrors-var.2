@@ -49,10 +49,10 @@
 
 		let cameraControls;
 
-		let sphereGroup, smallSphere;
+		let sphereGroup;
 
-		let groundMirror, frontMirror, frontMirror2, frontMirror3,
-		 backMirror, backMirror2, backMirror3;
+		let frontMirror, frontMirror2, frontMirror3,
+			backMirror, backMirror2, backMirror3;
 
 		init();
 		animate();
@@ -66,6 +66,9 @@
 			renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMapSoft = true;
+			renderer.shadowMapType = THREE.PCFSoftShadowMap;
 			container.appendChild(renderer.domElement);
 
 			// scene
@@ -89,24 +92,13 @@
 
 			let geometry, material;
 
-			geometry = new THREE.CircleGeometry(40, 64);
-			groundMirror = new Reflector(geometry, {
-				clipBias: 0.003,
-				textureWidth: window.innerWidth * window.devicePixelRatio,
-				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xb5b5b5
-			});
-			groundMirror.position.y = 0.5;
-			groundMirror.rotateX(- Math.PI / 2);
-			scene.add(groundMirror);
-
-			geometry = new THREE.PlaneGeometry(100, 100);
+			geometry = new THREE.PlaneGeometry(99, 99);
 
 			frontMirror = new Reflector(geometry, {
 				clipBias: 0.003,//про глубину отражения?
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xc1cbcb,
+				color: 0xafafaf,
 			});
 			frontMirror.material.transparent = true;
 			frontMirror.material.alpha = 0.9;
@@ -116,11 +108,10 @@
 			scene.add(frontMirror);
 
 			frontMirror2 = new Reflector(geometry, {
-				clipBias: 0.03,//про глубину отражения?
+				clipBias: 0.003,//про глубину отражения?
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xc1cbcb,
-				recursion: 1
+				color: 0xafafaf,
 			});
 			frontMirror2.material.transparent = true;
 			frontMirror2.material.alpha = 0.9;
@@ -130,11 +121,10 @@
 			scene.add(frontMirror2);
 
 			frontMirror3 = new Reflector(geometry, {
-				clipBias: 0.3,//про глубину отражения?
+				clipBias: 0.003,//про глубину отражения?
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xc1cbcb,
-				recursion: 1
+				color: 0xafafaf,
 			});
 			frontMirror3.material.transparent = true;
 			frontMirror3.material.alpha = 0.9;
@@ -144,11 +134,10 @@
 			scene.add(frontMirror3);
 
 			backMirror = new Reflector(geometry, {
-				clipBias: 0.03,
+				clipBias: 0.003,
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xb5b5b5,
-				recursion: 1
+				color: 0xafafaf,
 			});
 			backMirror.material.transparent = true;
 			backMirror.material.alpha = 0.9;
@@ -158,11 +147,10 @@
 			scene.add(backMirror);
 
 			backMirror2 = new Reflector(geometry, {
-				clipBias: 0.3,
+				clipBias: 0.003,
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
-				color: 0xb5b5b5,
-				recursion: 1
+				color: 0xafafaf,
 			});
 			backMirror2.material.transparent = true;
 			backMirror2.material.alpha = 0.9;
@@ -171,7 +159,7 @@
 			backMirror2.rotateY(Math.PI / 2);
 			scene.add(backMirror2);
 
-			/* backMirror3 = new Reflector(geometry, {
+			backMirror3 = new Reflector(geometry, {
 				clipBias: 0.3,
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
@@ -180,7 +168,7 @@
 			backMirror3.position.x = -50;
 			backMirror3.position.y = 50;
 			backMirror3.rotateY(Math.PI / 2);
-			scene.add(backMirror3); */
+			scene.add(backMirror3);
 
 			sphereGroup = new THREE.Object3D();
 			scene.add(sphereGroup);
@@ -197,13 +185,9 @@
 			halfSphere.rotateX(- Math.PI / 180 * 135);
 			halfSphere.rotateZ(- Math.PI / 180 * 20);
 			halfSphere.position.y = 7.5 + 15 * Math.sin(Math.PI / 180 * 30);
+			halfSphere.castShadow = true;
 
 			sphereGroup.add(halfSphere);
-
-			geometry = new THREE.IcosahedronGeometry(5, 0);
-			material = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x7b7b7b, flatShading: true });
-			smallSphere = new THREE.Mesh(geometry, material);
-			scene.add(smallSphere);
 
 			// walls
 			const planeTop = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0xffffff }));
@@ -213,6 +197,7 @@
 
 			const planeBottom = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0xffffff }));
 			planeBottom.rotateX(- Math.PI / 2);
+			planeBottom.receiveShadow = true;
 			scene.add(planeBottom);
 
 			const planeRight = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0x661133 }));
@@ -227,21 +212,26 @@
 			scene.add(planeLeft);
 
 			// lights
-			const mainLight = new THREE.PointLight(0xe7e7e7, 1.5, 250);
+			const mainLight = new THREE.PointLight(0xefefef, 0.8, 500);
 			mainLight.position.y = 60;
+			mainLight.castShadow = true;
+			mainLight.shadow.mapSize.width = 1024;
+			mainLight.shadow.mapSize.height = 1024;
 			scene.add(mainLight);
 
-			const greenLight = new THREE.PointLight(0x00ff00, 0.25, 1000);
-			greenLight.position.set(550, 50, 0);
-			scene.add(greenLight);
+			const yellowLight = new THREE.PointLight(0xffff00, 0.25, 500);
+			yellowLight.position.set(150, 50, 50);
+			yellowLight.castShadow = true;
+			yellowLight.shadow.mapSize.width = 1024;
+			yellowLight.shadow.mapSize.height = 1024;
+			scene.add(yellowLight);
 
-			const redLight = new THREE.PointLight(0xff0000, 0.25, 1000);
-			redLight.position.set(- 550, 50, 0);
+			const redLight = new THREE.PointLight(0xff0000, 0.25, 500);
+			redLight.position.set(-150, 50, 50);
+			redLight.castShadow = true;
+			redLight.shadow.mapSize.width = 1024;
+			redLight.shadow.mapSize.height = 1024;
 			scene.add(redLight);
-
-			const blueLight = new THREE.PointLight(0xbbbbfe, 0.25, 1000);
-			blueLight.position.set(0, 50, 550);
-			scene.add(blueLight);
 
 			window.addEventListener('resize', onWindowResize);
 
@@ -254,10 +244,6 @@
 
 			renderer.setSize(window.innerWidth, window.innerHeight);
 
-			groundMirror.getRenderTarget().setSize(
-				window.innerWidth * window.devicePixelRatio,
-				window.innerHeight * window.devicePixelRatio
-			);
 			frontMirror.getRenderTarget().setSize(
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
@@ -277,11 +263,11 @@
 			backMirror2.getRenderTarget().setSize(
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
-			);/* 
+			);
 			backMirror3.getRenderTarget().setSize(
 				window.innerWidth * window.devicePixelRatio,
 				window.innerHeight * window.devicePixelRatio
-			); */
+			);
 		}
 
 		function animate() {
@@ -289,16 +275,6 @@
 			requestAnimationFrame(animate);
 
 			const timer = Date.now() * 0.01;
-
-			/* sphereGroup.rotation.y -= 0.002;
-
-			smallSphere.position.set(
-				Math.cos(timer * 0.1) * 30,
-				Math.abs(Math.cos(timer * 0.2)) * 20 + 5,
-				Math.sin(timer * 0.1) * 30
-			);
-			smallSphere.rotation.y = (Math.PI / 2) - timer * 0.1;
-			smallSphere.rotation.z = timer * 0.8; */
 
 			renderer.render(scene, camera);
 
