@@ -35,7 +35,7 @@ class Reflector extends Mesh {
 		const clipBias = options.clipBias || 0;
 		const shader = options.shader || Reflector.ReflectorShader;
 		const multisample = (options.multisample !== undefined) ? options.multisample : 4;
-
+		const recursion = options.recursion; //было бы логично, но этого не было
 		//
 
 		const reflectorPlane = new Plane();
@@ -331,7 +331,7 @@ Reflector.ReflectorShader = {
 
 			vec4 base = texture2DProj( tDiffuse, vUv );
 			float depth = readDepth( tDepth, vUv );
-			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 250.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 300.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
 
 
 			#include <tonemapping_fragment>

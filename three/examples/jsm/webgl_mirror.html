@@ -49,7 +49,7 @@
 
 		let cameraControls;
 
-		let sphereGroup, smallSphere;
+		let sphereGroup;
 
 		let groundMirror, frontMirror, backMirror;
 
@@ -106,7 +106,9 @@
 				textureWidth: window.innerWidth * window.devicePixelRatio,
 				textureHeight: window.innerHeight * window.devicePixelRatio,
 				color: 0xc1cbcb,
-				recursion: 1
+				recursion: 1,
+				//shader: ,
+				//multisample: ,
 			});
 			frontMirror.material.transparent = true;
 			frontMirror.material.alpha = 0.1;
@@ -143,11 +145,6 @@
 			halfSphere.position.y = 7.5 + 15 * Math.sin(Math.PI / 180 * 30);
 
 			sphereGroup.add(halfSphere);
-
-			geometry = new THREE.IcosahedronGeometry(5, 0);
-			material = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x7b7b7b, flatShading: true });
-			smallSphere = new THREE.Mesh(geometry, material);
-			scene.add(smallSphere);
 
 			// walls
 			const planeTop = new THREE.Mesh(planeGeo, new THREE.MeshPhongMaterial({ color: 0xffffff }));
@@ -217,16 +214,6 @@
 			requestAnimationFrame(animate);
 
 			const timer = Date.now() * 0.01;
-
-			/* sphereGroup.rotation.y -= 0.002;
-
-			smallSphere.position.set(
-				Math.cos(timer * 0.1) * 30,
-				Math.abs(Math.cos(timer * 0.2)) * 20 + 5,
-				Math.sin(timer * 0.1) * 30
-			);
-			smallSphere.rotation.y = (Math.PI / 2) - timer * 0.1;
-			smallSphere.rotation.z = timer * 0.8; */
 
 			renderer.render(scene, camera);
 
