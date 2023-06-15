@@ -13,7 +13,8 @@ import {
 	NoToneMapping,
 	LinearSRGBColorSpace,
 	DepthTexture,
-	UnsignedShortType
+	UnsignedShortType,
+	//LinearFilter
 } from 'three';
 
 class Reflector extends Mesh {
@@ -66,6 +67,8 @@ class Reflector extends Mesh {
 		renderTarget.depthBuffer = true;
 		renderTarget.depthTexture = new DepthTexture();
 		renderTarget.depthTexture.type = UnsignedShortType;
+		//renderTarget.depthTexture.anisotropy = 1;
+		//renderTarget.depthTexture.minFilter  = LinearFilter;
 
 		/* if (!Math.isPowerOfTwo(textureWidth) || !Math.isPowerOfTwo(textureHeight)) {
 			renderTarget.texture.generateMipmaps = false;
@@ -339,7 +342,7 @@ Reflector.ReflectorShader = {
 
 			vec4 base = texture2DProj( tDiffuse, vUv );
 			float depth = readDepth( tDepth, vUv );
-			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 250.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 - ( depth * 450.0 ) ); /*вот здесь МОЖНО СДЕЛАТЬ ОТРАЖЕНИЕ ТУСКЛЫМ*/
 
 
 			#include <tonemapping_fragment>
